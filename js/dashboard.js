@@ -1060,7 +1060,6 @@
       '<div class="field" style="margin-top:12px"><label for="lp">Password</label><div class="pw-wrap"><input class="input" id="lp" name="password" type="password" autocomplete="current-password" required' + (noEndpoint ? ' disabled' : '') + '><button type="button" class="icon-btn" data-pw aria-label="Tampilkan password"><i class="ph ph-eye"></i></button></div></div>' +
       '<div id="lerr">' + (D.error ? '<div class="alert alert-danger" role="alert"><i class="ph ph-warning-circle"></i><span>' + esc(D.error) + '</span></div>' : '') + '</div>' +
       '<button type="submit" class="btn btn-primary btn-block"' + (noEndpoint || D.loading ? ' disabled' : '') + '>' + (D.loading ? '<i class="ph ph-spinner-gap spin"></i> Memeriksa' : '<i class="ph ph-sign-in"></i> Masuk') + '</button></form>' +
-      '<div class="demo-row"><span>Coba dengan data demo sebagai</span><div class="demo-btns"><button type="button" class="btn btn-secondary btn-sm" data-act="demo" data-as="founder"><i class="ph ph-user-gear"></i>Tim internal</button><button type="button" class="btn btn-secondary btn-sm" data-act="demo" data-as="mitra"><i class="ph ph-handshake"></i>Mitra / investor</button></div></div>' +
       '</div><p class="login-foot">Belum punya akun atau lupa password? Minta founder menambahkan Anda lewat Apps Script.<br><a href="/">Kembali ke halaman riset</a></p></div></div>';
   }
 
