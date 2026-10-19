@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perjalanan Seekor Sapi · Riset TernaQin</title>
+<meta name="description" content="Riset lapangan TernaQin: ceritakan pengalaman Anda sebagai peternak, RPH, pedagang daging, atau konsumen. Sekitar 10 menit, tanpa login.">
+<meta name="theme-color" content="#F3F3F3">
+<meta property="og:title" content="Perjalanan Seekor Sapi · Riset TernaQin">
+<meta property="og:description" content="Bantu kami memahami perjalanan daging dari kandang ke piring. Sekitar 10 menit, tanpa login.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://riset-ternaqin.vercel.app/">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="assets/mark.svg">
+<script src="js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="preload" href="assets/icons/Phosphor.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/icons/icons.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#app">Lewati ke isi</a>
+  <div id="ivbar" class="interviewer-bar" hidden></div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./" aria-label="TernaQin — halaman awal">
+        <img src="assets/logo.svg" alt="TernaQin" width="95" height="22">
+        <span class="brand-tag" id="brandTag">Riset Lapangan</span>
+      </a>
+      <span class="topbar-spacer"></span>
+      <div class="seg" role="group" aria-label="Bahasa / Language">
+        <button type="button" data-lang="id" aria-pressed="true">ID</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button type="button" class="icon-btn icon-btn-line" data-theme-toggle aria-label="Ganti tema"></button>
+    </div>
+    <div class="progress" id="progress" aria-live="polite"></div>
+  </header>
+
+  <div class="shell">
+    <aside class="rail" id="rail" hidden aria-label="Perjalanan Anda"></aside>
+    <main id="app" tabindex="-1">
+      <noscript><div class="card">Website ini memerlukan JavaScript. Aktifkan JavaScript di browser Anda. · This site requires JavaScript.</div></noscript>
+    </main>
+  </div>
+
+  <div class="actions" id="actions" hidden><div class="actions-inner" id="actionsInner"></div></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
