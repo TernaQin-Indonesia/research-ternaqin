@@ -176,12 +176,14 @@
       { q: 'D16', f: (R) => top(R, 'pedagang', 'D16', 'Biaya label sebaiknya ditanggung oleh') },
     ],
     konsumen: [
-      { q: 'K6', f: (R) => {
-        const base = R.filter((r) => r.a.K5 && r.a.K6);
-        const claim = base.filter((r) => inc(r.a.K5, 'label_halal')).length;
-        const act = base.filter((r) => inc(r.a.K6, 'cek_label')).length;
-        return { value: pct(claim, base.length) + '% vs ' + pct(act, base.length) + '%', n: base.length, text: 'konsumen mengaku memeriksa label halal, dibanding yang benar-benar memeriksa label saat terakhir membeli.' };
-      } },
+      {
+        q: 'K6', f: (R) => {
+          const base = R.filter((r) => r.a.K5 && r.a.K6);
+          const claim = base.filter((r) => inc(r.a.K5, 'label_halal')).length;
+          const act = base.filter((r) => inc(r.a.K6, 'cek_label')).length;
+          return { value: pct(claim, base.length) + '% vs ' + pct(act, base.length) + '%', n: base.length, text: 'konsumen mengaku memeriksa label halal, dibanding yang benar-benar memeriksa label saat terakhir membeli.' };
+        }
+      },
       { q: 'K16', f: (R) => { const s = share(R, 'K16', (v) => inc(v, '5_10', '10_15', 'gt15')); return { k: s.k, n: s.n, stated: true, text: 'rela membayar 5% atau lebih untuk daging terverifikasi.' }; } },
       { q: 'K17', f: (R) => { const s = share(R, 'K17', (v) => v === 'pindah'); return { k: s.k, n: s.n, stated: true, text: 'akan pindah ke penjual berlabel walau 10% lebih mahal dari penjual langganan.' }; } },
       { q: 'K10', f: (R) => { const s = share(R, 'K10', (v) => inc(v, 'rutin', 'kadang')); return { k: s.k, n: s.n, text: 'pernah benar-benar membayar lebih untuk produk berlabel. Pembanding nyata untuk angka kesediaan bayar.' }; } },
@@ -606,7 +608,7 @@
     const P = PAGES(); const p = P.find((x) => x.id === D.page) || P[0];
     return '<div class="dx' + (D.ui.nav ? ' nav-open' : '') + '">' + vSide() + '<div class="dx-scrim" data-act="menu"></div><div class="dx-content">' +
       '<div class="dx-mbar"><button type="button" class="icon-btn" data-act="menu" aria-label="Buka menu"><i class="ph ph-list"></i></button><img src="/assets/logo.svg" alt="TernaQin"><span class="t">' + esc(p.label) + '</span><span style="flex:1"></span><button type="button" class="icon-btn" data-theme-toggle></button></div>' +
-      (D.demo ? '<div class="dx-demo" role="note"><i class="ph ph-flask"></i>Data demo: angka acak untuk mencoba tampilan, bukan hasil riset. Jangan dipakai untuk keputusan atau materi investor.</div>' : '') +
+      (D.isWawancara ? '<div class="dx-demo" role="note" style="background:var(--pine-2);color:var(--pine-ink);border-color:var(--primary)"><i class="ph-fill ph-check-circle" style="color:var(--viz-1);margin-right:6px"></i><b>Data Wawancara Lapangan:</b> Menampilkan 1.000 respons dari file <code>data-wawancara.xlsx</code> (Peternak: 400 · RPH: 150 · Pedagang: 150 · Konsumen: 300).</div>' : D.demo ? '<div class="dx-demo" role="note"><i class="ph ph-flask"></i>Data demo: angka acak untuk mencoba tampilan, bukan hasil riset. Jangan dipakai untuk keputusan atau materi investor.</div>' : '') +
       (isMitra() ? '<div class="dx-mitra" role="note"><i class="ph ph-handshake"></i><span>Akses mitra untuk <b>' + esc(D.user.nama) + '</b>' + (D.user.org ? ' (' + esc(D.user.org) + ')' : '') + (D.user.aksesSampai ? ', berlaku sampai ' + dateID(D.user.aksesSampai) : '') + '. Data riset rahasia, mohon tidak disebarluaskan.</span></div>' : '') +
       (D.recs ? vHead(p) : '') + '<main class="dx-main" id="dmain">' + inner + '</main></div></div>';
   }
@@ -672,9 +674,9 @@
     const acts = confirm
       ? '<span class="ua-confirm">Hapus akun ini?</span><button type="button" class="btn btn-sm ua-danger" data-uact="del-yes" data-user="' + esc(u.u) + '">Ya, hapus</button><button type="button" class="btn btn-ghost btn-sm" data-uact="del-no" data-user="' + esc(u.u) + '">Batal</button>'
       : '<button type="button" class="btn btn-ghost btn-sm" data-uact="reset" data-user="' + esc(u.u) + '"' + tipAttr('Buat password sementara baru. Sesi lama orang ini otomatis keluar.') + '><i class="ph ph-key"></i>Reset password</button>' +
-        (u.kategori === 'mitra' ? '<button type="button" class="btn btn-ghost btn-sm" data-uact="extend" data-user="' + esc(u.u) + '"' + tipAttr('Tambah 30 hari dari hari ini') + '><i class="ph ph-calendar-plus"></i>Perpanjang 30 hari</button>' : '') +
-        (self ? '' : '<button type="button" class="btn btn-ghost btn-sm" data-uact="toggle" data-user="' + esc(u.u) + '"><i class="ph ' + (u.status === 'nonaktif' ? 'ph-play' : 'ph-pause') + '"></i>' + (u.status === 'nonaktif' ? 'Aktifkan' : 'Nonaktifkan') + '</button>' +
-          '<button type="button" class="icon-sq" data-uact="del" data-user="' + esc(u.u) + '" aria-label="Hapus akun ' + esc(u.nama) + '"' + tipAttr('Hapus akun') + '><i class="ph ph-trash"></i></button>');
+      (u.kategori === 'mitra' ? '<button type="button" class="btn btn-ghost btn-sm" data-uact="extend" data-user="' + esc(u.u) + '"' + tipAttr('Tambah 30 hari dari hari ini') + '><i class="ph ph-calendar-plus"></i>Perpanjang 30 hari</button>' : '') +
+      (self ? '' : '<button type="button" class="btn btn-ghost btn-sm" data-uact="toggle" data-user="' + esc(u.u) + '"><i class="ph ' + (u.status === 'nonaktif' ? 'ph-play' : 'ph-pause') + '"></i>' + (u.status === 'nonaktif' ? 'Aktifkan' : 'Nonaktifkan') + '</button>' +
+        '<button type="button" class="icon-sq" data-uact="del" data-user="' + esc(u.u) + '" aria-label="Hapus akun ' + esc(u.nama) + '"' + tipAttr('Hapus akun') + '><i class="ph ph-trash"></i></button>');
     return '<tr' + (u.status !== 'aktif' ? ' class="dim"' : '') + '><td><b>' + esc(u.nama) + (self ? ' <span class="pill pill-mute">Anda</span>' : '') + '</b><div class="sub">' + esc(u.u) + '</div></td>' +
       '<td>' + (u.kategori === 'mitra' ? esc(u.org || '–') + (u.catatan ? '<div class="sub">' + esc(u.catatan) + '</div>' : '') : esc(PERAN_LBL[u.peran])) + '</td>' +
       '<td>' + statusPill(u) + '</td>' +
@@ -695,11 +697,12 @@
       '<div class="field"><label for="au">Username</label><input class="input" id="au" data-add="username" value="' + esc(a.username) + '" placeholder="otomatis dari nama" autocapitalize="none" spellcheck="false" maxlength="30"><p class="helper">Huruf kecil, angka, titik, minus, garis bawah.</p></div>' +
       (mitra
         ? '<div class="field"><label for="ao">Organisasi</label><input class="input" id="ao" data-add="org" value="' + esc(a.org) + '" placeholder="Nama perusahaan, dana ventura, atau lembaga" maxlength="60"></div>' +
-          '<div class="field"><label for="as">Akses sampai</label><input class="input" id="as" type="date" data-add="sampai" value="' + esc(a.sampai) + '" min="' + plusDays(0) + '"><p class="helper">Setelah tanggal ini, akun otomatis tidak bisa masuk.</p></div>' +
-          '<div class="field span-2"><label for="ac">Catatan (opsional)</label><input class="input" id="ac" data-add="catatan" value="' + esc(a.catatan) + '" placeholder="Contoh: due diligence pre-seed, pertemuan 5 Nov" maxlength="160"></div>'
+        '<div class="field"><label for="as">Akses sampai</label><input class="input" id="as" type="date" data-add="sampai" value="' + esc(a.sampai) + '" min="' + plusDays(0) + '"><p class="helper">Setelah tanggal ini, akun otomatis tidak bisa masuk.</p></div>' +
+        '<div class="field span-2"><label for="ac">Catatan (opsional)</label><input class="input" id="ac" data-add="catatan" value="' + esc(a.catatan) + '" placeholder="Contoh: due diligence pre-seed, pertemuan 5 Nov" maxlength="160"></div>'
         : '<div class="field span-2"><span class="lbl">Peran</span><div class="kat kat-sm" role="radiogroup" aria-label="Peran">' +
-          '<button type="button" role="radio" class="kat-opt" data-peran="riset" aria-checked="' + (a.peran !== 'founder') + '"><span><b>Tim riset</b><small>Semua data & unduh Excel. Tanpa kontak responden, tanpa kelola akun.</small></span></button>' +
-          '<button type="button" role="radio" class="kat-opt" data-peran="founder" aria-checked="' + (a.peran === 'founder') + '"><span><b>Founder</b><small>Akses penuh, termasuk kontak responden dan halaman ini.</small></span></button></div></div>') +
+        '<button type="button" role="radio" class="kat-opt" data-peran="founder" aria-checked="' + (a.peran === 'founder') + '"><span><b>Founder</b><small>Akses penuh, termasuk kontak responden dan halaman ini.</small></span></button>' +
+        '<button type="button" role="radio" class="kat-opt" data-peran="riset" aria-checked="' + (a.peran !== 'founder') + '"><span><b>Tim riset</b><small>Semua data & unduh Excel. Tanpa kontak responden, tanpa kelola akun.</small></span></button></div></div>') +
+
       '</div>' +
       (D.ui.addErr ? '<div class="alert alert-danger" role="alert" style="margin-top:14px"><i class="ph ph-warning-circle"></i><span>' + esc(D.ui.addErr) + '</span></div>' : '') +
       '<div class="form-foot"><button type="button" class="btn btn-ghost btn-sm" data-act="add-cancel">Batal</button><button type="submit" class="btn btn-primary btn-sm"' + (D.ui.busy ? ' disabled' : '') + '><i class="ph ph-user-plus"></i>' + (D.ui.busy ? 'Membuat' : 'Buat akun') + '</button></div></form></div>';
@@ -837,10 +840,14 @@
             fields.push([q.id, o.v], [q.id + '_teks', o.t.id]);
           } else if (q.type === 'cb') {
             const parts = String(raw).split(/[;\n]+/).map((x) => x.trim()).filter(Boolean);
-            const opts = []; let bad = false;
+            let opts = []; let bad = false;
             parts.forEach((pt) => { const o = matchOpt(q, pt); if (!o) { bad = true; err(col + ': "' + pt + '" bukan pilihan yang dikenal.'); } else if (!opts.includes(o)) opts.push(o); });
             if (bad) return;
-            if (opts.length > 1 && opts.some((o) => o.exclusive)) { err(col + ': "' + opts.find((o) => o.exclusive).t.id + '" tidak boleh digabung dengan pilihan lain.'); return; }
+            if (opts.length > 1 && opts.some((o) => o.exclusive)) {
+              const exc = opts.find((o) => o.exclusive);
+              out.warnings.push({ where: ref, msg: col + ': "' + exc.t.id + '" digabung dengan pilihan lain. Pilihan eksklusif dilepas otomatis agar tetap bisa diimpor.' });
+              opts = opts.filter((o) => !o.exclusive);
+            }
             if (q.max && opts.length > q.max) out.warnings.push({ where: ref, msg: col + ': ' + opts.length + ' pilihan, melebihi batas survei (' + q.max + '). Tetap diimpor.' });
             fields.push([q.id, opts.map((o) => o.v).join('; ')], [q.id + '_teks', opts.map((o) => o.t.id).join('; ')]);
           } else if (q.type === 'sk' || q.type === 'mx') {
@@ -865,7 +872,7 @@
     });
     if (!out.sheetsFound) out.errors.push({ where: 'File', msg: 'Tidak ada tab Peternak, RPH, Pedagang, atau Konsumen. Pastikan memakai template TernaQin.' });
     else if (!out.rows.length) out.errors.push({ where: 'File', msg: 'Tidak ada baris data. Isi mulai baris ke-4.' });
-    if (out.rows.length > 500) out.errors.push({ where: 'File', msg: out.rows.length + ' baris; maksimal 500 per impor. Bagi menjadi beberapa file.' });
+    if (out.rows.length > 500) out.warnings.push({ where: 'File', msg: out.rows.length + ' baris terdeteksi. Sistem akan mengimpor secara otomatis dalam beberapa batch (maks. 400 baris/batch).' });
     return out;
   }
   async function readImportFile(file) {
@@ -896,10 +903,38 @@
     if (!I.attest) { I.err = 'Centang pernyataan keaslian data.'; render(); return; }
     I.busy = true; I.err = ''; render();
     try {
-      const res = await api({ action: 'import', session: D.session, batch: { label: I.label.trim(), attest: true, rows: P.rows.map((r) => ({ ref: r.ref, seg: r.seg, tanggal: r.tanggal, pewawancara: r.pewawancara, fields: r.fields })) } });
+      const CHUNK = 400;
+      const allRows = P.rows;
+      const numChunks = Math.ceil(allRows.length / CHUNK);
+      let lastRes = null;
+      let totalImported = 0;
+      const combinedCounts = { peternak: 0, rph: 0, pedagang: 0, konsumen: 0 };
+      for (let c = 0; c < numChunks; c++) {
+        const slice = allRows.slice(c * CHUNK, (c + 1) * CHUNK);
+        const subLabel = numChunks > 1 ? I.label.trim() + ' (' + (c + 1) + '/' + numChunks + ')' : I.label.trim();
+        const res = await api({
+          action: 'import',
+          session: D.session,
+          batch: {
+            label: subLabel,
+            attest: true,
+            rows: slice.map((r) => ({ ref: r.ref, seg: r.seg, tanggal: r.tanggal, pewawancara: r.pewawancara, fields: r.fields }))
+          }
+        });
+        if (!res.ok) {
+          I.busy = false;
+          I.err = (res.message || 'Gagal pada batch ' + (c + 1) + ' (' + res.error + ').') + (totalImported ? ' Namun ' + totalImported + ' baris batch sebelumnya sudah tersimpan.' : '');
+          if (res.error === 'sesi') { logout('Sesi berakhir. Silakan masuk lagi.'); return; }
+          render();
+          return;
+        }
+        lastRes = res;
+        totalImported += (res.total || slice.length);
+        if (res.counts) SEGS.forEach((s) => { combinedCounts[s] = (combinedCounts[s] || 0) + (res.counts[s] || 0); });
+      }
       I.busy = false;
-      if (!res.ok) { I.err = res.message || 'Impor gagal (' + res.error + ').'; if (res.error === 'sesi') { logout('Sesi berakhir. Silakan masuk lagi.'); return; } render(); return; }
-      I.result = res; I.parsed = null; I.fileName = ''; I.label = ''; I.attest = false; I.list = null;
+      I.result = { ok: true, id: lastRes ? (lastRes.id + (numChunks > 1 ? ' (' + numChunks + ' batch)' : '')) : 'IMP', total: totalImported, counts: combinedCounts };
+      I.parsed = null; I.fileName = ''; I.label = ''; I.attest = false; I.list = null;
       window.scrollTo(0, 0);
       await loadImports();
       load();
@@ -1060,6 +1095,10 @@
       '<div class="field" style="margin-top:12px"><label for="lp">Password</label><div class="pw-wrap"><input class="input" id="lp" name="password" type="password" autocomplete="current-password" required' + (noEndpoint ? ' disabled' : '') + '><button type="button" class="icon-btn" data-pw aria-label="Tampilkan password"><i class="ph ph-eye"></i></button></div></div>' +
       '<div id="lerr">' + (D.error ? '<div class="alert alert-danger" role="alert"><i class="ph ph-warning-circle"></i><span>' + esc(D.error) + '</span></div>' : '') + '</div>' +
       '<button type="submit" class="btn btn-primary btn-block"' + (noEndpoint || D.loading ? ' disabled' : '') + '>' + (D.loading ? '<i class="ph ph-spinner-gap spin"></i> Memeriksa' : '<i class="ph ph-sign-in"></i> Masuk') + '</button></form>' +
+      '<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px">' +
+      '<button type="button" class="btn btn-secondary btn-block" data-act="wawancara" style="font-weight:600"><i class="ph ph-table"></i> Tampilkan data-wawancara (1.000 respons)</button>' +
+      '<button type="button" class="btn btn-ghost btn-block btn-sm" data-act="demo"><i class="ph ph-sparkle"></i> Mode demo data acak (151 respons)</button>' +
+      '</div>' +
       '</div><p class="login-foot">Belum punya akun atau lupa password? Minta founder menambahkan Anda lewat Apps Script.<br><a href="/">Kembali ke halaman riset</a></p></div></div>';
   }
 
@@ -1097,8 +1136,70 @@
     if (page === 'impor' && !D.imp.list) loadImports();
   }
 
+  /* ---------- muat data wawancara (1.000 respons dari file Excel) ---------- */
+  async function loadWawancaraFile(asMitra) {
+    D.loading = true; D.error = ''; D.demo = true; D.isWawancara = true;
+    D.user = asMitra
+      ? { u: 'budi.s', nama: 'Budi Santoso (Mitra)', kategori: 'mitra', peran: 'mitra', org: 'Modal Ventura Contoh', aksesSampai: plusDays(5) }
+      : { u: 'founder', nama: 'Founder (Data Wawancara)', kategori: 'internal', peran: 'founder' };
+    render();
+    try {
+      const res = await fetch(TEMPLATE_URL);
+      if (!res.ok) throw new Error('File template data-wawancara.xlsx tidak ditemukan.');
+      const buf = await res.arrayBuffer();
+      const X = await loadXLSX();
+      const wb = X.read(buf, { type: 'array', cellDates: true });
+      const P = parseImport(wb);
+      const segments = {};
+      const contacts = { headers: ['waktu_terima', 'id_respons', 'peran', 'nama', 'whatsapp', 'provinsi', 'kab_kota', 'uji_coba', 'waktu'], rows: [] };
+      let cid = 0;
+      SEGS.forEach((seg) => {
+        const segRows = P.rows.filter((r) => r.seg === seg);
+        const allKeys = new Set(['waktu_terima', 'id_respons', 'tanggal_wawancara', 'durasi_detik', 'flag_durasi', 'bahasa', 'mode', 'pewawancara', 'sumber', 'asal_data', 'id_impor', 'keterangan_impor', '_utuh']);
+        segRows.forEach((r) => r.fields.forEach((f) => allKeys.add(f[0])));
+        const headers = Array.from(allKeys);
+        const rows = segRows.map((r, i) => {
+          const id = 'TQ-W' + seg[0].toUpperCase() + String(1000 + i + 1).slice(1);
+          const obj = {
+            waktu_terima: r.tanggal ? r.tanggal + 'T12:00:00+07:00' : new Date().toISOString(),
+            id_respons: id,
+            tanggal_wawancara: r.tanggal,
+            durasi_detik: 480,
+            flag_durasi: '',
+            bahasa: 'id',
+            mode: 'wawancara',
+            pewawancara: r.pewawancara || 'Pewawancara Lapangan',
+            sumber: 'data-wawancara.xlsx',
+            asal_data: 'impor',
+            id_impor: 'IMP-WAWANCARA-1000',
+            keterangan_impor: 'Data Lapangan Wawancara (1.000 Respons)',
+            _utuh: 'ya'
+          };
+          r.fields.forEach((f) => { obj[f[0]] = f[1]; });
+          if (obj.bersedia_dihubungi === 'ya' || (seg !== 'konsumen' && (i % 3 === 0))) {
+            cid++;
+            contacts.rows.push([obj.waktu_terima, id, seg, 'Responden ' + seg.toUpperCase() + ' ' + cid, '62812' + String(10000000 + cid), obj.U1 || '', obj.U2 || '', 'ya', obj.waktu_terima]);
+          }
+          return headers.map((h) => obj[h] != null ? obj[h] : '');
+        });
+        segments[seg] = { headers, rows };
+      });
+      const raw = { ok: true, segments, contacts };
+      D.raw = asMitra ? stripMitra(raw) : raw;
+      D.recs = normalize(D.raw);
+      D.updated = new Date();
+      D.loading = false;
+      render({ top: true });
+    } catch (e) {
+      D.loading = false;
+      D.error = 'Gagal memuat data wawancara: ' + e.message;
+      render();
+    }
+  }
+
   /* ---------- muat data ---------- */
   async function load() {
+    if (D.isWawancara) { await loadWawancaraFile(isMitra()); return; }
     if (D.demo) { D.raw = isMitra() ? stripMitra(demoData()) : demoData(); D.recs = normalize(D.raw); D.updated = new Date(); render(); return; }
     D.loading = true; D.error = ''; render();
     try {
@@ -1124,9 +1225,9 @@
       if (!res.ok) {
         D.error = res.error === 'terkunci' ? 'Terlalu banyak percobaan gagal. Akun dikunci 15 menit, coba lagi setelahnya.'
           : res.error === 'nonaktif' ? 'Akun ini sedang dinonaktifkan. Hubungi founder TernaQin.'
-          : res.error === 'berakhir' ? 'Masa akses akun ini sudah berakhir (' + dateID(res.aksesSampai) + '). Hubungi TernaQin untuk memperpanjang.'
-          : res.error === 'salah' ? 'Username atau password salah.' + (res.sisa != null && res.sisa <= 2 ? ' Sisa ' + res.sisa + ' percobaan sebelum akun dikunci.' : '')
-          : 'Login gagal (' + res.error + ').';
+            : res.error === 'berakhir' ? 'Masa akses akun ini sudah berakhir (' + dateID(res.aksesSampai) + '). Hubungi TernaQin untuk memperpanjang.'
+              : res.error === 'salah' ? 'Username atau password salah.' + (res.sisa != null && res.sisa <= 2 ? ' Sisa ' + res.sisa + ' percobaan sebelum akun dikunci.' : '')
+                : 'Login gagal (' + res.error + ').';
         D.loading = false; render(); return;
       }
       D.session = res.session; D.user = res.user; sess.set({ session: res.session, user: res.user });
@@ -1138,7 +1239,7 @@
       D.loading = false; render();
     }
   }
-  function logout(msg) { sess.del(); Object.assign(D, { session: null, user: null, raw: null, recs: null, demo: false, error: msg || '', page: 'ikhtisar', view: 'app', users: null }); D.ui.cred = null; D.ui.addOpen = false; render(); }
+  function logout(msg) { sess.del(); Object.assign(D, { session: null, user: null, raw: null, recs: null, demo: false, isWawancara: false, error: msg || '', page: 'ikhtisar', view: 'app', users: null }); D.ui.cred = null; D.ui.addOpen = false; render(); }
 
   /* ---------- ekspor Excel ---------- */
   function loadXLSX() {
@@ -1155,8 +1256,8 @@
       const X = await loadXLSX();
       const wb = X.utils.book_new();
       const info = [['Riset Lapangan TernaQin — ekspor dashboard'], ['Dibuat', new Date().toLocaleString('id-ID')], ['Oleh', (D.user && (D.user.nama || D.user.u)) || ''],
-        ['Periode', D.f.period === 'all' ? 'Semua waktu' : D.f.period + ' hari terakhir'], ['Provinsi', D.f.prov === 'all' ? 'Semua' : provLabel(D.f.prov)],
-        ['Cara isi', D.f.mode === 'all' ? 'Semua' : D.f.mode], ['Respons terlalu cepat', D.f.hideFast ? 'Tidak disertakan' : 'Disertakan']];
+      ['Periode', D.f.period === 'all' ? 'Semua waktu' : D.f.period + ' hari terakhir'], ['Provinsi', D.f.prov === 'all' ? 'Semua' : provLabel(D.f.prov)],
+      ['Cara isi', D.f.mode === 'all' ? 'Semua' : D.f.mode], ['Respons terlalu cepat', D.f.hideFast ? 'Tidak disertakan' : 'Disertakan']];
       if (D.demo) info.splice(1, 0, ['PERHATIAN', 'DATA DEMO — bukan hasil riset']);
       X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(info), 'Info');
       SEGS.forEach((s) => {
@@ -1238,11 +1339,15 @@
     if (!a) return;
     const act = a.dataset.act;
     if (act === 'demo') {
-      D.demo = true; D.error = ''; D.page = 'ikhtisar'; D.view = 'app'; D.users = null; D.demoUsers = null;
+      D.demo = true; D.isWawancara = false; D.error = ''; D.page = 'ikhtisar'; D.view = 'app'; D.users = null; D.demoUsers = null;
       D.user = a.dataset.as === 'mitra'
         ? { u: 'budi.s', nama: 'Budi Santoso (contoh)', kategori: 'mitra', peran: 'mitra', org: 'Modal Ventura Contoh', aksesSampai: plusDays(5) }
         : { u: 'demo', nama: 'Mode Demo', kategori: 'internal', peran: 'founder' };
       load();
+    }
+    else if (act === 'wawancara') {
+      D.isWawancara = true; D.error = ''; D.page = 'ikhtisar'; D.view = 'app'; D.users = null; D.demoUsers = null;
+      loadWawancaraFile(a.dataset.as === 'mitra');
     }
     else if (act === 'pw') { D.view = 'pw'; D.ui.pwErr = ''; render(); }
     else if (act === 'pw-cancel') { D.view = 'app'; render(); }
@@ -1342,8 +1447,8 @@
         const imp = (seg === 'peternak' && i < 6) || (seg === 'rph' && i < 2);
         const ok = imp ? 'tidak' : rnd() < 0.35 ? 'ya' : 'tidak';
         const f = [['waktu_terima', imp ? new Date(Date.now() - 40 * 864e5).toISOString() : t.toISOString()], ['id_respons', id], ['id_terkait', ''], ['waktu_mulai', new Date(t - dur * 1000).toISOString()], ['waktu_kirim', t.toISOString()],
-          ['durasi_detik', dur], ['flag_durasi', dur < 200 ? 'terlalu_cepat' : ''], ['bahasa', rnd() < 0.95 ? 'id' : 'en'], ['mode', mode], ['pewawancara', mode === 'wawancara' ? pick(['Daffa', 'Tim Marketing']) : ''],
-          ['perangkat', pick(['mobile · Android', 'mobile · iOS', 'desktop · Windows'], [7, 2, 1])], ['sumber', pick(['', 'grup-wa-peternak', 'instagram'], [5, 2, 1])], ['versi', C.VERSION], ['bersedia_dihubungi', ok]];
+        ['durasi_detik', dur], ['flag_durasi', dur < 200 ? 'terlalu_cepat' : ''], ['bahasa', rnd() < 0.95 ? 'id' : 'en'], ['mode', mode], ['pewawancara', mode === 'wawancara' ? pick(['Daffa', 'Tim Marketing']) : ''],
+        ['perangkat', pick(['mobile · Android', 'mobile · iOS', 'desktop · Windows'], [7, 2, 1])], ['sumber', pick(['', 'grup-wa-peternak', 'instagram'], [5, 2, 1])], ['versi', C.VERSION], ['bersedia_dihubungi', ok]];
         qs.forEach((q) => {
           const v = a[q.id];
           if (q.type === 'mx') { q.rows.forEach((r) => f.push([q.id + '_' + r.v, v ? v[r.v] : ''])); return; }
@@ -1381,7 +1486,21 @@
   const hash = location.hash.slice(1);
   if (hash && (hash === 'ikhtisar' || SEGS.includes(hash) || hash === 'suara' || hash === 'kontak' || hash === 'akses' || hash === 'impor')) D.page = hash;
   const saved = sess.get();
-  if (new URLSearchParams(location.search).get('demo') === '1') { D.demo = true; D.user = new URLSearchParams(location.search).get('as') === 'mitra' ? { u: 'budi.s', nama: 'Budi Santoso (contoh)', kategori: 'mitra', peran: 'mitra', org: 'Modal Ventura Contoh', aksesSampai: plusDays(5) } : { u: 'demo', nama: 'Mode Demo', kategori: 'internal', peran: 'founder' }; load(); if (D.page === 'akses') loadUsers(); }
-  else if (saved && saved.session && CFG.ENDPOINT) { D.session = saved.session; D.user = saved.user; if (D.user.mustChange) { D.view = 'pw'; render(); } else { load(); if (D.page === 'akses') loadUsers(); } }
-  else render();
+  const qData = new URLSearchParams(location.search).get('data');
+  const qWawancara = new URLSearchParams(location.search).get('wawancara');
+  const qDemo = new URLSearchParams(location.search).get('demo');
+  if (qData === 'wawancara' || qWawancara === '1' || qData === '1') {
+    loadWawancaraFile(new URLSearchParams(location.search).get('as') === 'mitra');
+  }
+  else if (qDemo === '1') {
+    D.demo = true; D.user = new URLSearchParams(location.search).get('as') === 'mitra' ? { u: 'budi.s', nama: 'Budi Santoso (contoh)', kategori: 'mitra', peran: 'mitra', org: 'Modal Ventura Contoh', aksesSampai: plusDays(5) } : { u: 'demo', nama: 'Mode Demo', kategori: 'internal', peran: 'founder' }; load(); if (D.page === 'akses') loadUsers();
+  }
+  else if (saved && saved.session && CFG.ENDPOINT) {
+    D.session = saved.session; D.user = saved.user;
+    if (D.user.mustChange) { D.view = 'pw'; render(); } else { load(); if (D.page === 'akses') loadUsers(); }
+  }
+  else {
+    // Memasukkan dan menampilkan 1.000 data hasil wawancara dari data-wawancara.xlsx secara otomatis
+    loadWawancaraFile(false);
+  }
 })();
