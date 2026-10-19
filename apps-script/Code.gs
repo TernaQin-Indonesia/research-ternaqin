@@ -121,7 +121,22 @@ function setup() {
   const first = ss.getSheetByName('Sheet1') || ss.getSheetByName('Lembar1');
   if (first && first.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(first);
   secret_();
-  Logger.log('Setup selesai. Buka Google Sheet, muat ulang, lalu pakai menu TernaQin → Buat akun founder.');
+
+  // Buat akun founder pertama otomatis jika belum ada
+  if (!getUser_('admin')) {
+    var res = createUser_({ username: 'admin', nama: 'Admin TernaQin', kategori: 'internal', peran: 'founder' }, 'setup');
+    Logger.log('========================================');
+    Logger.log('AKUN FOUNDER PERTAMA BERHASIL DIBUAT');
+    Logger.log('Username : admin');
+    Logger.log('Password : ' + res.password);
+    Logger.log('========================================');
+    Logger.log('Catat password di atas! Tidak bisa dilihat lagi.');
+    Logger.log('Saat login pertama di /dashboard, Anda akan diminta membuat password sendiri.');
+  } else {
+    Logger.log('Akun founder "admin" sudah ada. Lewati pembuatan akun.');
+  }
+
+  Logger.log('Setup selesai.');
 }
 
 /* =================================================================
