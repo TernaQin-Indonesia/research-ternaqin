@@ -55,6 +55,7 @@ Domain riset-ternaqin.vercel.app otomatis terpasang bila nama project tersebut t
 - Alamat: https://riset-ternaqin.vercel.app/dashboard (tidak terindeks mesin pencari, data hanya keluar setelah login).
 - Ringkasan: total respons, progres terhadap target (atur TARGETS di js/config.js), respons per hari, sinyal kunci, sebaran provinsi.
 - Data dashboard diambil langsung dari Google Sheet melalui Apps Script. Dashboard memperbarui data otomatis setiap 60 detik dan menyediakan tombol "Perbarui" untuk mengambil data terbaru segera.
+- Sesi dashboard hanya berlaku selama halaman terbuka. Saat web dibuka atau dimuat ulang kembali, pengguna wajib login lagi.
 - Tab per segmen: setiap pertanyaan otomatis jadi grafik; tombol tabel di pojok kartu; "Saring" untuk membandingkan kelompok (mis. peternak 20–99 ekor saja).
 - Cerita: semua jawaban teks bebas + catatan pewawancara, bisa dicari kata kuncinya.
 - Kontak dan Akses tim: hanya untuk founder. Akun mitra melihat versi data yang sudah disaring dan pita "Akses mitra" di atas layar.

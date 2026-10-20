@@ -29,8 +29,14 @@
   const fmtN = (n) => Number(n || 0).toLocaleString('id-ID');
   const dec = (x, d) => Number(x).toFixed(d == null ? 1 : d).replace('.', ',');
   const sess = {
-    get() { try { return JSON.parse(sessionStorage.getItem(SKEY)); } catch (e) { return null; } },
-    set(v) { try { sessionStorage.setItem(SKEY, JSON.stringify(v)); } catch (e) { /* abaikan */ } },
+    get() {
+      // Sesi dashboard tidak dipulihkan setelah halaman dibuka ulang.
+      try { sessionStorage.removeItem(SKEY); } catch (e) { /* abaikan */ }
+      return null;
+    },
+    set() {
+      // Token hanya disimpan di memori selama halaman aktif.
+    },
     del() { try { sessionStorage.removeItem(SKEY); } catch (e) { /* abaikan */ } },
   };
   const qsFor = (seg) => C.COMMON.concat(C.SEGMENTS[seg]);
