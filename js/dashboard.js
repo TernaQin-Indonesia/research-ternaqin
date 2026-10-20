@@ -63,12 +63,12 @@
 
   /* ---------- state ---------- */
   const D = {
-    session: null, user: null, raw: null, recs: null, demo: false, loading: false, error: '', updated: null,
+    session: null, user: null, raw: null, recs: null, demo: false, isWawancara: false, loading: false, error: '', updated: null,
     page: 'ikhtisar', view: 'app', users: null, usersErr: '',
     f: { period: 'all', prov: 'all', mode: 'all', origin: 'all', hideFast: true },
     imp: { parsed: null, fileName: '', label: '', attest: false, busy: false, err: '', result: null, list: null, listErr: '', confirm: '' },
     cond: { q: '', v: '' },
-    ui: { filterOpen: false, nav: false, ch: {}, qs: '', tables: {}, pilotOnly: false, more: 120, addOpen: false, add: null, addErr: '', cred: null, confirm: '', pwErr: '', busy: false },
+    ui: { filterOpen: false, nav: false, ch: {}, qs: '', tables: {}, pilotOnly: false, more: 120, addOpen: false, add: null, addErr: '', edit: null, editErr: '', cred: null, confirm: '', pwErr: '', busy: false },
     voice: { seg: 'all', q: 'all', s: '' },
   };
 
@@ -598,8 +598,8 @@
     const showFilters = p.id !== 'kontak' && p.id !== 'akses' && p.id !== 'impor';
     return '<header class="dx-head"><div class="dx-head-row"><div><h1>' + (seg ? '<i class="sw c-' + seg + '"></i>' : '') + esc(p.title) + '</h1><p class="desc">' + esc(p.desc) + '</p></div>' + right + '</div>' +
       (showFilters ? '<div class="dx-head-row" style="margin-top:20px;align-items:center"><div class="period" role="group" aria-label="Periode">' + [['all', 'Semua waktu'], ['90', '90 hari'], ['30', '30 hari'], ['7', '7 hari']].map((x) => '<button type="button" data-period="' + x[0] + '" aria-pressed="' + (D.f.period === x[0]) + '">' + x[1] + '</button>').join('') + '</div>' +
-        '<div class="dx-tools"><span class="dx-updated"><i class="ph ph-clock"></i>Diperbarui ' + (D.updated ? D.updated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '–') + (D.demo ? '' : ' · otomatis tiap 3 menit') + '</span>' +
-        '<button type="button" class="btn btn-secondary btn-38" data-act="refresh" aria-label="Muat ulang data"' + tipAttr('Ambil data terbaru dari Google Sheet') + '><i class="ph ph-arrows-clockwise' + (D.loading ? ' spin' : '') + '"></i></button>' +
+        '<div class="dx-tools"><span class="dx-updated"><i class="ph ph-clock"></i>Diperbarui ' + (D.updated ? D.updated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '–') + (D.demo ? '' : ' · otomatis tiap 60 detik') + '</span>' +
+        '<button type="button" class="btn btn-secondary btn-38" data-act="refresh" aria-label="Perbarui data sekarang"' + tipAttr('Ambil data terbaru dari Google Sheet sekarang') + '><i class="ph ph-arrows-clockwise' + (D.loading ? ' spin' : '') + '"></i><span class="refresh-label">Perbarui</span></button>' +
         '<button type="button" class="btn btn-secondary btn-38" data-act="filter-toggle" aria-expanded="' + D.ui.filterOpen + '"><i class="ph ph-funnel"></i>Filter' + (ac ? ' <span class="badge-n">' + ac + '</span>' : '') + '</button>' +
         (isMitra() ? '' : '<button type="button" class="btn btn-secondary btn-38" data-act="export"><i class="ph ph-download-simple"></i>Unduh Excel</button>') + vFilterPop() + '</div></div>' + vChips() : '') +
       '</header>';
@@ -673,7 +673,8 @@
     const confirm = D.ui.confirm === u.u;
     const acts = confirm
       ? '<span class="ua-confirm">Hapus akun ini?</span><button type="button" class="btn btn-sm ua-danger" data-uact="del-yes" data-user="' + esc(u.u) + '">Ya, hapus</button><button type="button" class="btn btn-ghost btn-sm" data-uact="del-no" data-user="' + esc(u.u) + '">Batal</button>'
-      : '<button type="button" class="btn btn-ghost btn-sm" data-uact="reset" data-user="' + esc(u.u) + '"' + tipAttr('Buat password sementara baru. Sesi lama orang ini otomatis keluar.') + '><i class="ph ph-key"></i>Reset password</button>' +
+      : '<button type="button" class="btn btn-ghost btn-sm" data-uact="edit" data-user="' + esc(u.u) + '"><i class="ph ph-pencil-simple"></i>Edit akun</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-uact="reset" data-user="' + esc(u.u) + '"' + tipAttr('Buat password sementara baru. Sesi lama orang ini otomatis keluar.') + '><i class="ph ph-key"></i>Reset password</button>' +
       (u.kategori === 'mitra' ? '<button type="button" class="btn btn-ghost btn-sm" data-uact="extend" data-user="' + esc(u.u) + '"' + tipAttr('Tambah 30 hari dari hari ini') + '><i class="ph ph-calendar-plus"></i>Perpanjang 30 hari</button>' : '') +
       (self ? '' : '<button type="button" class="btn btn-ghost btn-sm" data-uact="toggle" data-user="' + esc(u.u) + '"><i class="ph ' + (u.status === 'nonaktif' ? 'ph-play' : 'ph-pause') + '"></i>' + (u.status === 'nonaktif' ? 'Aktifkan' : 'Nonaktifkan') + '</button>' +
         '<button type="button" class="icon-sq" data-uact="del" data-user="' + esc(u.u) + '" aria-label="Hapus akun ' + esc(u.nama) + '"' + tipAttr('Hapus akun') + '><i class="ph ph-trash"></i></button>');
@@ -683,6 +684,17 @@
       (u.kategori === 'mitra' ? '<td>' + dateID(u.aksesSampai) + '</td>' : '') +
       '<td>' + (u.loginTerakhir ? ago(new Date(u.loginTerakhir)) : '–') + '</td>' +
       '<td><div class="ua">' + acts + '</div></td></tr>';
+  }
+  function vEditForm() {
+    const e = D.ui.edit;
+    if (!e) return '';
+    return '<div class="panel add-panel"><div class="panel-h"><div><h3>Edit akun</h3><p>Perubahan nama langsung terlihat. Mengganti username akan mengeluarkan akun tersebut dari sesi lama.</p></div></div>' +
+      '<form id="editForm" novalidate><div class="form-grid">' +
+      '<div class="field"><label for="eu">Username</label><input class="input" id="eu" data-edit="username" value="' + esc(e.username) + '" autocapitalize="none" spellcheck="false" maxlength="30"><p class="helper">3–30 karakter: huruf kecil, angka, titik, minus, garis bawah.</p></div>' +
+      '<div class="field"><label for="en">Nama lengkap</label><input class="input" id="en" data-edit="nama" value="' + esc(e.nama) + '" maxlength="60"></div>' +
+      (e.kategori === 'mitra' ? '<div class="field span-2"><label for="eo">Organisasi</label><input class="input" id="eo" data-edit="org" value="' + esc(e.org || '') + '" maxlength="60"></div>' : '') +
+      '</div>' + (D.ui.editErr ? '<div class="alert alert-danger" role="alert" style="margin-top:14px"><i class="ph ph-warning-circle"></i><span>' + esc(D.ui.editErr) + '</span></div>' : '') +
+      '<div class="form-foot"><button type="button" class="btn btn-ghost btn-sm" data-act="edit-cancel">Batal</button><button type="submit" class="btn btn-primary btn-sm"' + (D.ui.busy ? ' disabled' : '') + '><i class="ph ph-floppy-disk"></i>' + (D.ui.busy ? 'Menyimpan' : 'Simpan perubahan') + '</button></div></form></div>';
   }
   function vAddForm() {
     const a = D.ui.add || (D.ui.add = addDefault());
@@ -730,7 +742,7 @@
     const soon = mAktif.filter((u) => u.aksesSampai && daysLeft(u.aksesSampai) <= 7).length;
     const tbl = (rows, isM) => rows.length ? '<div class="tbl-wrap"><table class="tbl ua-tbl"><thead><tr><th>Nama</th><th>' + (isM ? 'Organisasi' : 'Peran') + '</th><th>Status</th>' + (isM ? '<th>Akses sampai</th>' : '') + '<th>Login terakhir</th><th><span class="sr-only">Tindakan</span></th></tr></thead><tbody>' + rows.map(userRow).join('') + '</tbody></table></div>'
       : '<div class="empty">' + (isM ? 'Belum ada akun mitra. Buat saat akan presentasi ke investor atau calon mitra, lalu atur tanggal berakhirnya.' : 'Belum ada anggota tim lain.') + '</div>';
-    return vCred() +
+    return vCred() + (D.ui.edit ? vEditForm() : '') +
       '<section class="sec"><dl class="strip"><div><dt>Tim internal</dt><dd>' + internal.filter((u) => u.status === 'aktif').length + '</dd><div class="sub">' + internal.filter((u) => u.peran === 'founder' && u.status === 'aktif').length + ' founder aktif</div></div>' +
       '<div><dt>Mitra aktif</dt><dd>' + mAktif.length + '</dd><div class="sub">dari ' + mitra.length + ' akun mitra</div></div>' +
       '<div><dt>Akses mitra berakhir ≤ 7 hari</dt><dd>' + soon + '</dd><div class="sub">perpanjang bila masih diperlukan</div></div></dl></section>' +
@@ -743,6 +755,12 @@
       '<section class="sec"><div class="sec-h"><div><h2>Mitra & investor</h2><p>Melihat versi data yang sudah disaring di server. Setiap kali mereka membuka data, tercatat di tab Log pada Google Sheet.</p></div></div><div class="panel">' + tbl(mitra, true) + '</div></section>';
   }
   async function userAction(act, username) {
+    if (act === 'edit') {
+      const u = D.users.find((x) => x.u === username);
+      if (u) { D.ui.edit = { original: u.u, username: u.u, nama: u.nama, org: u.org || '', kategori: u.kategori }; D.ui.editErr = ''; render(); window.scrollTo(0, 0); }
+      return;
+    }
+    if (act === 'edit-cancel') { D.ui.edit = null; D.ui.editErr = ''; render(); return; }
     if (act === 'del') { D.ui.confirm = username; render(); return; }
     if (act === 'del-no') { D.ui.confirm = ''; render(); return; }
     const u = D.users.find((x) => x.u === username);
@@ -777,6 +795,23 @@
       window.scrollTo(0, 0);
       await loadUsers();
     } catch (e) { D.ui.busy = false; D.ui.addErr = 'Server tidak bisa dihubungi.'; render(); }
+  }
+  async function submitEdit() {
+    const e = D.ui.edit;
+    if (!e) return;
+    const username = e.username.trim().toLowerCase();
+    const nama = e.nama.trim();
+    if (!/^[a-z0-9._-]{3,30}$/.test(username)) { D.ui.editErr = 'Username 3–30 karakter: huruf kecil, angka, titik, minus, atau garis bawah.'; render(); return; }
+    if (!nama) { D.ui.editErr = 'Nama wajib diisi.'; render(); return; }
+    D.ui.busy = true; D.ui.editErr = ''; render();
+    try {
+      const res = await api({ action: 'userUpdate', session: D.session, username: e.original, changes: { username, nama, org: e.org.trim() } });
+      D.ui.busy = false;
+      if (!res.ok) { D.ui.editErr = res.message || 'Gagal menyimpan perubahan (' + res.error + ').'; render(); return; }
+      D.ui.edit = null;
+      toast('Perubahan akun tersimpan');
+      await loadUsers();
+    } catch (err) { D.ui.busy = false; D.ui.editErr = 'Server tidak bisa dihubungi.'; render(); }
   }
 
   /* ---------- HALAMAN: IMPOR WAWANCARA LAMA (founder) ---------- */
@@ -1095,10 +1130,6 @@
       '<div class="field" style="margin-top:12px"><label for="lp">Password</label><div class="pw-wrap"><input class="input" id="lp" name="password" type="password" autocomplete="current-password" required' + (noEndpoint ? ' disabled' : '') + '><button type="button" class="icon-btn" data-pw aria-label="Tampilkan password"><i class="ph ph-eye"></i></button></div></div>' +
       '<div id="lerr">' + (D.error ? '<div class="alert alert-danger" role="alert"><i class="ph ph-warning-circle"></i><span>' + esc(D.error) + '</span></div>' : '') + '</div>' +
       '<button type="submit" class="btn btn-primary btn-block"' + (noEndpoint || D.loading ? ' disabled' : '') + '>' + (D.loading ? '<i class="ph ph-spinner-gap spin"></i> Memeriksa' : '<i class="ph ph-sign-in"></i> Masuk') + '</button></form>' +
-      '<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px">' +
-      '<button type="button" class="btn btn-secondary btn-block" data-act="wawancara" style="font-weight:600"><i class="ph ph-table"></i> Tampilkan data-wawancara (1.000 respons)</button>' +
-      '<button type="button" class="btn btn-ghost btn-block btn-sm" data-act="demo"><i class="ph ph-sparkle"></i> Mode demo data acak (151 respons)</button>' +
-      '</div>' +
       '</div><p class="login-foot">Belum punya akun atau lupa password? Minta founder menambahkan Anda lewat Apps Script.<br><a href="/">Kembali ke halaman riset</a></p></div></div>';
   }
 
@@ -1288,6 +1319,7 @@
   document.addEventListener('submit', (e) => {
     if (e.target.id === 'pwForm') { e.preventDefault(); submitPw(); return; }
     if (e.target.id === 'addForm') { e.preventDefault(); submitAdd(); return; }
+    if (e.target.id === 'editForm') { e.preventDefault(); submitEdit(); return; }
     if (e.target.id === 'impForm') { e.preventDefault(); submitImport(); return; }
     if (e.target.id !== 'loginForm') return;
     e.preventDefault();
@@ -1388,6 +1420,7 @@
     const t = e.target;
     if (!t.dataset) return;
     if (t.dataset.implabel != null) { D.imp.label = t.value; if (D.imp.err) { D.imp.err = ''; const a = $('#impForm .alert'); if (a) a.remove(); } return; }
+    if (t.dataset.edit != null) { D.ui.edit[t.dataset.edit] = t.value; return; }
     if (t.dataset.add) {
       const a = D.ui.add; const k = t.dataset.add;
       a[k] = t.value;
@@ -1469,9 +1502,9 @@
   }
 
   /* ---------- pembaruan otomatis ----------
-     Dashboard mengambil data terbaru tiap 3 menit selama tab terbuka, dan langsung saat tab
+     Dashboard mengambil data terbaru tiap 60 detik selama tab terbuka, dan langsung saat tab
      dibuka lagi. Tab yang tersembunyi tidak memanggil server (hemat kuota Apps Script). */
-  const AUTO_MS = 3 * 60 * 1000;
+  const AUTO_MS = 60 * 1000;
   function autoRefresh(force) {
     if (D.demo || !D.user || !D.recs || D.view !== 'app' || D.loading || document.visibilityState !== 'visible') return;
     if (D.imp && (D.imp.busy || D.imp.parsed)) return; // jangan ganggu impor yang sedang diperiksa
@@ -1486,21 +1519,11 @@
   const hash = location.hash.slice(1);
   if (hash && (hash === 'ikhtisar' || SEGS.includes(hash) || hash === 'suara' || hash === 'kontak' || hash === 'akses' || hash === 'impor')) D.page = hash;
   const saved = sess.get();
-  const qData = new URLSearchParams(location.search).get('data');
-  const qWawancara = new URLSearchParams(location.search).get('wawancara');
-  const qDemo = new URLSearchParams(location.search).get('demo');
-  if (qData === 'wawancara' || qWawancara === '1' || qData === '1') {
-    loadWawancaraFile(new URLSearchParams(location.search).get('as') === 'mitra');
-  }
-  else if (qDemo === '1') {
-    D.demo = true; D.user = new URLSearchParams(location.search).get('as') === 'mitra' ? { u: 'budi.s', nama: 'Budi Santoso (contoh)', kategori: 'mitra', peran: 'mitra', org: 'Modal Ventura Contoh', aksesSampai: plusDays(5) } : { u: 'demo', nama: 'Mode Demo', kategori: 'internal', peran: 'founder' }; load(); if (D.page === 'akses') loadUsers();
-  }
-  else if (saved && saved.session && CFG.ENDPOINT) {
+  if (saved && saved.session && CFG.ENDPOINT) {
     D.session = saved.session; D.user = saved.user;
     if (D.user.mustChange) { D.view = 'pw'; render(); } else { load(); if (D.page === 'akses') loadUsers(); }
   }
   else {
-    // Memasukkan dan menampilkan 1.000 data hasil wawancara dari data-wawancara.xlsx secara otomatis
-    loadWawancaraFile(false);
+    render();
   }
 })();

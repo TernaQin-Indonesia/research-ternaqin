@@ -346,8 +346,17 @@ function resetPassword_(username, by) {
   return { user: publicUser_(rec), password: pw };
 }
 function updateUser_(username, ch, s) {
-  const rec = getUser_(String(username || '').trim().toLowerCase());
+  const oldUsername = String(username || '').trim().toLowerCase();
+  const rec = getUser_(oldUsername);
   if (!rec) throw new Error('USER:Username tidak ditemukan.');
+  if ('username' in ch) {
+    const nextUsername = String(ch.username || '').trim().toLowerCase();
+    if (!/^[a-z0-9._-]{3,30}$/.test(nextUsername)) throw new Error('USER:Username 3–30 karakter: huruf kecil, angka, titik, minus, atau garis bawah.');
+    if (nextUsername !== oldUsername && getUser_(nextUsername)) throw new Error('USER:Username "' + nextUsername + '" sudah dipakai.');
+    if (nextUsername !== oldUsername && rec.u === s.u) throw new Error('USER:Anda tidak bisa mengganti username akun sendiri saat sedang login.');
+    rec.u = nextUsername;
+    rec.pv = (rec.pv || 0) + 1;
+  }
   if ('aktif' in ch) {
     if (!ch.aktif && rec.u === s.u) throw new Error('USER:Anda tidak bisa menonaktifkan akun sendiri.');
     if (!ch.aktif && rec.peran === 'founder' && activeFounders_() <= 1) throw new Error('USER:Harus ada minimal satu founder aktif.');
@@ -360,8 +369,11 @@ function updateUser_(username, ch, s) {
   }
   if ('nama' in ch && String(ch.nama).trim()) rec.nama = String(ch.nama).trim().slice(0, 60);
   if ('org' in ch && rec.kategori === 'mitra') rec.org = String(ch.org).trim().slice(0, 60);
+  if (oldUsername !== rec.u) {
+    PropertiesService.getScriptProperties().deleteProperty('USER_' + oldUsername);
+  }
   putUser_(rec);
-  log_('akun_diubah', rec.u + ' oleh ' + s.u + ' ' + JSON.stringify(ch));
+  log_('akun_diubah', oldUsername + (oldUsername !== rec.u ? ' → ' + rec.u : '') + ' oleh ' + s.u + ' ' + JSON.stringify(ch));
   return publicUser_(rec);
 }
 function deleteUser_(username, s) {

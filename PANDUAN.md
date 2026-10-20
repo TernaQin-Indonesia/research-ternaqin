@@ -32,6 +32,7 @@ Akun berikutnya (dari dashboard, khusus founder):
 3. Isi nama; username terisi otomatis (boleh diubah) → Buat akun.
 4. Klik "Salin pesan siap kirim", tempel di chat pribadi orang itu. Ia wajib membuat password sendiri saat login pertama.
 5. Di tabel akun: Reset password, Perpanjang 30 hari (mitra), Nonaktifkan/Aktifkan, atau Hapus. Perubahan langsung berlaku; sesi orang itu otomatis keluar.
+6. Pilih **Edit akun** pada bagian Tim internal TernaQin atau Mitra & investor untuk mengganti nama, username, dan (untuk mitra) organisasi. Username harus unik; mengganti username membatalkan sesi lama akun tersebut.
 
 Menu TernaQin di Google Sheet juga punya: Reset password akun (bila founder lupa password), Lihat daftar akun, Keluarkan semua sesi login.
 Setiap login, pembukaan data, dan perubahan akun tercatat di tab Log.
@@ -53,11 +54,12 @@ Domain riset-ternaqin.vercel.app otomatis terpasang bila nama project tersebut t
 ## C2. Dashboard
 - Alamat: https://riset-ternaqin.vercel.app/dashboard (tidak terindeks mesin pencari, data hanya keluar setelah login).
 - Ringkasan: total respons, progres terhadap target (atur TARGETS di js/config.js), respons per hari, sinyal kunci, sebaran provinsi.
+- Data dashboard diambil langsung dari Google Sheet melalui Apps Script. Dashboard memperbarui data otomatis setiap 60 detik dan menyediakan tombol "Perbarui" untuk mengambil data terbaru segera.
 - Tab per segmen: setiap pertanyaan otomatis jadi grafik; tombol tabel di pojok kartu; "Saring" untuk membandingkan kelompok (mis. peternak 20–99 ekor saja).
 - Cerita: semua jawaban teks bebas + catatan pewawancara, bisa dicari kata kuncinya.
 - Kontak dan Akses tim: hanya untuk founder. Akun mitra melihat versi data yang sudah disaring dan pita "Akses mitra" di atas layar.
 - Unduh Excel: data mentah sesuai filter aktif.
-- Mode demo (tombol di halaman login) memakai angka acak berlabel DEMO — hanya untuk mencoba tampilan, jangan dipakai untuk keputusan atau materi investor.
+- Dashboard hanya menampilkan data setelah login; file Excel template tidak digunakan sebagai sumber data dashboard.
 
 ## C3. Impor wawancara lama (founder)
 Untuk wawancara yang dilakukan sebelum website riset ada.
