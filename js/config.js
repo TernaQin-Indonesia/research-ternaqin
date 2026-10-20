@@ -13,3 +13,4 @@ window.TQ_CONFIG = {
   // Target jumlah responden per segmen — tampil sebagai progres di dashboard. Ubah sesuai rencana riset.
   TARGETS: { peternak: 30, rph: 8, pedagang: 20, konsumen: 100 },
 };
+
